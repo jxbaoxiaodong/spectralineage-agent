@@ -1,0 +1,131 @@
+{
+  "sample_id": "DEMO-RUBBER-001",
+  "sample_description": "Unknown rubber additive, industrial production batch QC",
+  "filename": "rubber_additive_batch_47.csv",
+  "measured_peaks_cm": [710, 820, 1060, 1240, 1375, 1460, 1540, 1600, 2920, 3000, 3060],
+  "note_missing": "No absorption detected in 2050–2250 cm⁻¹ region",
+
+  "library_result": {
+    "top_candidates": [
+      {
+        "rank": 1,
+        "name": "Polymeric Carbodiimide (anti-hydrolysis agent)",
+        "formula": "[-N=C=N-R-]n",
+        "similarity": 0.70,
+        "lead_gap": 0.08,
+        "spectral_id": "lib_044821",
+        "required_peaks_cm": [710, 1060, 1240, 1460, 2110, 2140, 2920]
+      },
+      {
+        "rank": 2,
+        "name": "Dicyclohexylcarbodiimide (DCC)",
+        "formula": "C13H22N2",
+        "similarity": 0.62,
+        "spectral_id": "lib_031205",
+        "required_peaks_cm": [820, 1375, 1460, 2115, 2920]
+      },
+      {
+        "rank": 3,
+        "name": "4,4′-Methylenediphenyl diisocyanate (MDI)",
+        "formula": "C15H10N2O2",
+        "similarity": 0.55,
+        "spectral_id": "lib_019044",
+        "required_peaks_cm": [820, 1240, 1540, 2270, 2920]
+      }
+    ],
+    "top15_direction_convergence": "nitrogen-containing organic compound, possible crosslinker or stabilizer"
+  },
+
+  "evidence_gate": {
+    "verdict": "library_direction",
+    "color": "YELLOW",
+    "entity_blocked": true,
+    "block_reason": "Characteristic carbodiimide stretch (N=C=N) expected at 2110–2150 cm⁻¹ is absent from sample spectrum. Top-1 candidate requires this peak for entity confirmation.",
+    "missing_peaks": [
+      {
+        "wavenumber_cm": 2130,
+        "assignment": "N=C=N asymmetric stretch (carbodiimide)",
+        "required_by": "Top-1, Top-2 candidates",
+        "status": "ABSENT"
+      }
+    ],
+    "present_peaks_with_citations": [
+      {
+        "peak_cm": 2920,
+        "assignment": "C–H asymmetric stretch (–CH₂–)",
+        "citation": {
+          "source_kind": "authoritative_handbook",
+          "source": "Bellamy, Infrared Spectra of Complex Molecules, 3rd ed.",
+          "quote": "Asymmetric C–H stretching vibrations of –CH₂– groups give strong absorption near 2925 cm⁻¹",
+          "quote_loc": "p.15, §2.3",
+          "quote_wn_expt": 2925,
+          "delta": 5,
+          "grade": "B"
+        }
+      },
+      {
+        "peak_cm": 1460,
+        "assignment": "C–H bending (–CH₂–)",
+        "citation": {
+          "source_kind": "authoritative_handbook",
+          "source": "Silverstein, Webster, Kiemle — Spectrometric Identification of Organic Compounds, 7th ed.",
+          "quote": "CH₂ scissoring deformation appears at 1465±10 cm⁻¹",
+          "quote_loc": "p.104, Table 3.4",
+          "quote_wn_expt": 1465,
+          "delta": 5,
+          "grade": "B"
+        }
+      }
+    ],
+    "direction": "Nitrogen-containing organic compound, likely carbodiimide or isocyanate family (crosslinker / anti-hydrolysis agent)",
+    "recommended_next_steps": [
+      "Pyrolysis GC-MS: confirm volatile organic components and carbodiimide decomposition products",
+      "XRF elemental analysis: verify N content and N/C ratio consistent with carbodiimide structure",
+      "TGA: check thermal stability profile vs. known carbodiimide anti-hydrolysis agents"
+    ]
+  },
+
+  "audit_chain": [
+    {
+      "stage": "parse",
+      "label": "Spectrum Parse",
+      "fields_written": ["peak_data", "raw_spectrum", "snr"],
+      "axis": "measurement",
+      "sha256": "a3f8c2d1e9b047f5a3f8c2d1e9b047f5a3f8c2d1e9b047f5a3f8c2d1e9b047f5",
+      "timestamp": "2026-08-09T03:01:00Z"
+    },
+    {
+      "stage": "library_search",
+      "label": "Library Search (132k spectra)",
+      "fields_written": ["top_candidates", "similarity_scores", "lead_gap"],
+      "axis": "library",
+      "sha256": "b7e3a1f6c8d204e9b7e3a1f6c8d204e9b7e3a1f6c8d204e9b7e3a1f6c8d204e9",
+      "timestamp": "2026-08-09T03:01:01Z"
+    },
+    {
+      "stage": "kg_enrichment",
+      "label": "KG Peak Evidence",
+      "fields_written": ["peak_evidence", "peak_citations"],
+      "axis": "kg",
+      "blocked_attempt": {"field": "resolved_level", "status": "BLOCKED"},
+      "sha256": "c9d5b2e8f1a306c7c9d5b2e8f1a306c7c9d5b2e8f1a306c7c9d5b2e8f1a306c7",
+      "timestamp": "2026-08-09T03:01:02Z"
+    },
+    {
+      "stage": "rag_enrichment",
+      "label": "RAG Literature",
+      "fields_written": ["peak_evidence", "literature_refs"],
+      "axis": "rag_literature",
+      "sha256": "d2a6c4f9e0b518d3d2a6c4f9e0b518d3d2a6c4f9e0b518d3d2a6c4f9e0b518d3",
+      "timestamp": "2026-08-09T03:01:04Z"
+    },
+    {
+      "stage": "verdict",
+      "label": "Verdict (LLM + Evidence Gate)",
+      "fields_written": ["resolved_level", "direction_label", "reasoning", "next_steps"],
+      "axis": "llm",
+      "sha256": "e5f1d8a2b7c649e4e5f1d8a2b7c649e4e5f1d8a2b7c649e4e5f1d8a2b7c649e4",
+      "timestamp": "2026-08-09T03:01:07Z"
+    }
+  ]
+}

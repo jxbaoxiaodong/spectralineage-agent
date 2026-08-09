@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SpectraLineage Agent — DataHub Hackathon</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <div class="brand">
+    <span class="brand-ftir">FTIR.fun</span>
+    <span class="brand-name">SpectraLineage Agent</span>
+    <span class="brand-tag">— spectral provenance · DataHub lineage</span>
+  </div>
+  <nav>
+    <button class="active" onclick="switchTab('analyze',this)">▶ Analyze</button>
+    <button onclick="switchTab('lineage',this)">🔗 Lineage</button>
+    <button onclick="switchTab('entities',this)">📦 Entities</button>
+    <button onclick="switchTab('architecture',this)">⚙ Architecture</button>
+  </nav>
+  <span class="dh-badge">powered by DataHub</span>
+</header>
+
+<main>
+
+<!-- ═══════════════════════════ TAB: ANALYZE ═══════════════════════════ -->
+<div id="tab-analyze" class="tab-panel active">
+
+  <div class="card">
+    <h2>Hero Case — Rubber Additive with Missing Characteristic Peak</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">
+      The AI similarity match returns 70 %. Evidence Gate verifies every required peak.
+      The N=C=N stretch at 2130 cm⁻¹ is absent → entity verdict is blocked.
+      The analysis is then registered in DataHub as a dataset lineage chain.
+    </p>
+
+    <div class="grid-2" style="margin-bottom:16px;">
+      <div>
+        <div class="meta-row"><span class="meta-label">Sample</span><span class="meta-val">Unknown Rubber Additive (industrial QC)</span></div>
+        <div class="meta-row"><span class="meta-label">File</span><span class="meta-val">rubber_additive_batch_47.csv</span></div>
+        <div class="meta-row"><span class="meta-label">Measured peaks</span><span class="meta-val">710, 820, 1060, 1240, 1375, 1460, 1540, 1600, 2920, 3000, 3060 cm⁻¹</span></div>
+        <div class="meta-row"><span class="meta-label">Notable absent</span><span class="meta-val" style="color:var(--yellow);">No absorption in 2050–2250 cm⁻¹</span></div>
+      </div>
+      <div>
+        <div class="meta-row"><span class="meta-label">Library Top-1</span><span class="meta-val">Polymeric Carbodiimide (anti-hydrolysis)</span></div>
+        <div class="meta-row"><span class="meta-label">Similarity</span><span class="meta-val">70 %</span></div>
+        <div class="meta-row"><span class="meta-label">Required peak</span><span class="meta-val" style="color:var(--red);">2110–2140 cm⁻¹ (N=C=N) — ABSENT</span></div>
+        <div class="meta-row"><span class="meta-label">Expected verdict</span><span class="meta-val"><span class="verdict-badge verdict-YELLOW">YELLOW / library_direction</span></span></div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-primary" id="btn-run" onclick="runHeroCase()">▶ Run Analysis + Register in DataHub</button>
+      <a id="btn-dh-link" class="btn btn-dh" style="display:none" href="#" target="_blank">Open in DataHub UI ↗</a>
+    </div>
+  </div>
+
+  <!-- result area -->
+  <div id="analyze-result" style="display:none;">
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>Evidence Gate Verdict</h3>
+        <div id="verdict-content"></div>
+      </div>
+      <div class="card">
+        <h3>DataHub Registration</h3>
+        <div id="datahub-content"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Lineage Chain Registered in DataHub</h3>
+      <div id="lineage-chain-viz"></div>
+      <p style="font-size:12px;color:var(--muted);margin-top:10px;">
+        Every analysis creates 4 entities: input Dataset → DataFlow → DataJob → output verdict Dataset.
+        Click any URN to open it in DataHub UI.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>Audit Chain (SHA-256 per stage)</h3>
+      <div id="audit-content"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════ TAB: LINEAGE ═══════════════════════════ -->
+<div id="tab-lineage" class="tab-panel">
+  <div class="card">
+    <h2>Lineage Explorer</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">
+      Query the DataHub lineage graph for any sample. Run the hero case first to populate entities.
+    </p>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <input id="lineage-sample-id" type="text" value="DEMO-RUBBER-001"
+        style="background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:var(--radius);padding:8px 12px;font-size:13px;width:240px;">
+      <button class="btn btn-primary" onclick="queryLineage()">🔍 Query Lineage</button>
+      <button class="btn btn-dh" onclick="openDhLineage()">Open in DataHub ↗</button>
+    </div>
+  </div>
+  <div id="lineage-result"></div>
+</div>
+
+<!-- ═══════════════════════════ TAB: ENTITIES ═══════════════════════════ -->
+<div id="tab-entities" class="tab-panel">
+  <div class="card">
+    <h2>DataHub Entities</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">
+      All spectral datasets, pipelines, and jobs registered in local DataHub.
+    </p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="loadEntities()">🔄 Refresh</button>
+      <a class="btn btn-dh" href="http://localhost:9002" target="_blank">Open DataHub UI ↗</a>
+    </div>
+  </div>
+  <div id="entities-result"></div>
+</div>
+
+<!-- ═══════════════════════════ TAB: ARCHITECTURE ═══════════════════════════ -->
+<div id="tab-architecture" class="tab-panel">
+  <div class="card">
+    <h2>SpectraLineage Agent — Architecture</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:20px;">
+      Every FTIR spectral analysis is registered as a DataHub lineage chain — from raw spectrum file to
+      Evidence Gate verdict — enabling full provenance, auditability, and replay.
+    </p>
+
+    <!-- system diagram -->
+    <div class="arch-row">
+      <div class="arch-box" style="border-color:var(--blue);">
+        <div class="arch-label">INPUT</div>
+        <div class="arch-name" style="color:var(--blue);">Spectrum File</div>
+        <div style="font-size:11px;color:var(--muted);">rubber_additive_batch_47.csv<br>710–3060 cm⁻¹</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-box">
+        <div class="arch-label">AXIS 1</div>
+        <div class="arch-name">Library Search</div>
+        <div style="font-size:11px;color:var(--muted);">130K+ spectra<br>Similarity matching</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-box" style="border-color:var(--yellow);">
+        <div class="arch-label">EVIDENCE GATE</div>
+        <div class="arch-name" style="color:var(--yellow);">Axis Permission Registry</div>
+        <div style="font-size:11px;color:var(--muted);">Citation Grade Contract<br>SHA-256 Audit Chain</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-box" style="border-color:var(--green);">
+        <div class="arch-label">OUTPUT</div>
+        <div class="arch-name" style="color:var(--yellow);">Verdict Dataset</div>
+        <div style="font-size:11px;color:var(--muted);">library_direction / YELLOW<br>+ next steps</div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin:8px 0;color:var(--muted);font-size:13px;">↓ all above registered as lineage in DataHub ↓</div>
+
+    <div class="arch-row">
+      <div class="arch-box" style="border-color:var(--dh-blue);width:100%;max-width:500px;">
+        <div class="arch-label">DataHub (local, port 9002 / GMS 8182)</div>
+        <div class="arch-name" style="color:var(--dh-blue);">Lineage Graph</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:6px;text-align:left;line-height:1.8;">
+          📄 Dataset: <code>DEMO-RUBBER-001.spectrum</code> (raw input)<br>
+          ⚙ DataFlow: <code>spectral-auditor-pipeline</code><br>
+          🔧 DataJob:&nbsp; <code>evidence-gate</code><br>
+          📄 Dataset: <code>DEMO-RUBBER-001.verdict</code> (output + verdict metadata)
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:20px;"></div>
+    <h3 style="margin-bottom:12px;">Why DataHub?</h3>
+
+    <div class="grid-2">
+      <div>
+        <div style="margin-bottom:14px;">
+          <div style="font-weight:600;margin-bottom:4px;">🔍 Provenance</div>
+          <div style="font-size:13px;color:var(--muted);">Every verdict traces back to its exact input spectrum, library version, and rule set. DataHub stores the full lineage graph — not just the result.</div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <div style="font-weight:600;margin-bottom:4px;">🔒 Immutability</div>
+          <div style="font-size:13px;color:var(--muted);">SHA-256 checkpoints per stage. If any step is tampered, the audit chain breaks — DataHub records the EXPLICIT_FAIL, not a recalculated verdict.</div>
+        </div>
+      </div>
+      <div>
+        <div style="margin-bottom:14px;">
+          <div style="font-weight:600;margin-bottom:4px;">📊 Governance</div>
+          <div style="font-size:13px;color:var(--muted);">Axis Permission Registry: KG and RAG axes are forbidden from writing resolved_level or direction_label. Only the LLM axis, after Evidence Gate, can conclude.</div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <div style="font-weight:600;margin-bottom:4px;">🔁 Reproducibility</div>
+          <div style="font-size:13px;color:var(--muted);">Any prior verdict can be replayed from DataHub: same spectrum URN, same pipeline version, same rule set version → deterministic output.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="background:var(--bg);margin-top:8px;">
+      <h3>DataHub Integration Points Used</h3>
+      <div style="font-size:13px;line-height:2.1;">
+        ✅ <strong>DataHub Python SDK</strong> — <code>DatahubRestEmitter</code> + <code>MetadataChangeProposalWrapper</code><br>
+        ✅ <strong>DatasetProperties</strong> — spectrum metadata + verdict metadata as custom properties<br>
+        ✅ <strong>UpstreamLineage</strong> — spectrum → verdict edge with TRANSFORMED type<br>
+        ✅ <strong>DataFlow + DataJob</strong> — pipeline and Evidence Gate step as first-class entities<br>
+        ✅ <strong>DataJobInputOutput</strong> — explicit I/O binding of the job to datasets<br>
+        ✅ <strong>Status</strong> — entities marked active (not removed)<br>
+        ✅ <strong>REST API</strong> — lineage queries via <code>/openapi/v3/relationships</code>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
